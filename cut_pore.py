@@ -585,7 +585,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   obConversion.WriteFile(mol, outfile)
 
 
-def cut_pore(infile, radius, buffer, ohdensity, outfile):
+def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
   # set openbabel file format
   base, ext = os.path.splitext(infile)
   obConversion = openbabel.OBConversion()
@@ -617,6 +617,13 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
   todelete = []
   maxz = sys.float_info.min
   minz = sys.float_info.max
+  
+  maxx = sys.float_info.min
+  minx = sys.float_info.max
+  
+  maxy = sys.float_info.min
+  miny = sys.float_info.max
+  
   for atom in openbabel.OBMolAtomIter(mol):
     apos = (atom.GetX(), atom.GetY(), atom.GetZ())
     if apos[2] > maxz:
@@ -624,13 +631,38 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
     if apos[2] < minz:
       minz = apos[2]
 
-    if (((apos[0]*apos[0]) + (apos[1]*apos[1])) <= (radius*radius)):
+    if apos[0] > maxx:
+      maxx = apos[0]
+    if apos[0] < minx:
+      minx = apos[0]
+
+    if apos[1] > maxy:
+      maxy = apos[1]
+    if apos[1] < miny:
+      miny = apos[1]
+    
+    if (((apos[1]*apos[1])) <= (radius*radius)):
       todelete.append(atom)
 
+
+  xlength = (maxx-minx)/10
   zlength = (maxz-minz)/10.
-  porearea = 2.*np.pi*(radius/10.)*zlength
+  ylength = (maxy-miny)/10.
+  porearea = 2*xlength*zlength
   numoh = np.floor(porearea*ohdensity)
   print("Estimated z length (nm): {}".format(zlength))
+  print("Estimated y length (nm): {}".format(ylength))
+  print("Estimated x length (nm): {}".format(xlength))
+  
+  print("Min X (nm): {}".format(minx))
+  print("Max X (nm): {}".format(maxx))
+  
+  print("Mix Y (nm): {}".format(miny))
+  print("Max Y (nm): {}".format(maxy))
+  
+  print("Min Z (nm): {}".format(minz))
+  print("Max Z (nm): {}".format(maxz))
+  
   print("Estimated pore area (nm^2): {}".format(porearea))
   print("Number of needed OH: {}".format(numoh))
   numoh = numoh - (numoh%4)
@@ -651,7 +683,8 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
   buffatoms = {8: 0, 14: 0}
   for atom in openbabel.OBMolAtomIter(mol):
     apos = (atom.GetX(), atom.GetY(), atom.GetZ())
-    distcenter = (apos[0]*apos[0]) + (apos[1]*apos[1])
+    distcenter = apos[1]*apos[1]
+    
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
       inbuffer[distcenter] = atom
@@ -803,10 +836,10 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
   silist = []
   for (dist, atom) in ordbuffer.items():
     if naddedh >= numoh:
-      break
-
+      #break
+      pass
     # get the bonded atom (if it's an O it should only be bonded to 1 atom to become an O-H)
-    if ((atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() == 1)):
+    if ((atom.GetAtomicNum() == 14) and (atom.GetExplicitDegree() == 1)):
       for atom2 in openbabel.OBAtomAtomIter(atom):
         nbrAtom = atom2
 
@@ -820,7 +853,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
         angle = np.arctan2(apos[1], apos[0])
         # add atom 1 \AA away from the oxygen, pointing to the central axis
         a = mol.NewAtom()
-        a.SetAtomicNum(1) # hydrogen atom
+        a.SetAtomicNum(8) # hydrogen atom
         a.SetVector(apos[0]-np.cos(angle), apos[1]-np.sin(angle), apos[2]) # coordinates
         naddedh += 1
 
@@ -844,11 +877,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
 
   # write final structure
   obConversion.WriteFile(mol, outfile)
-  
-  
 
-  # write final structure
-  obConversion.WriteFile(mol, outfile)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="Receives a .xyz or file read by OpenBabel and cut a cylindrical pore with a given radius at 0.0")
@@ -856,7 +885,8 @@ if __name__ == '__main__':
   parser.add_argument("radius", type=float, help="radius of the pore")
   parser.add_argument("-o", "--output", metavar="OUTFILE" , help="name of output file (default = pore.pdb)", default="pore.pdb")
   parser.add_argument("--buffer-size", type=float, help="buffer added to radius to get the surface atoms (default = 1.0)", default=1.0)
-  parser.add_argument("--silanol-density", type=float, help="density of Si-O-H terminations at the pore surface in nm^(-2) (default = 3)", default=3)
+  parser.add_argument("--silanol-density", type=float, help="density of Si-O-H terminations at the pore surface in nm^(-2) (default = 3)", default=100)
+  parser.add_argument("--option", type=str, help="options are : cylinder_oh_ | plate_oh_ | plate_o_",default="plate_o_")
 
   args = parser.parse_args()
 
@@ -868,29 +898,12 @@ if __name__ == '__main__':
   if ext[1:] not in obabel_sup:
     sys.exit("Error: {} files are not accepted by OpenBabel.".format(ext[1:]))
 
+  if args.option=="poreh":
+    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "cylinder_oh_"+args.output)
+  elif args.option=="plateh":
+    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "plate_oh_"+args.output)
+  elif args.option=="plateo":
+    cut_plate_redirect_o2(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "plate_o_"+args.output)
 
-if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description="Receives a .xyz or file read by OpenBabel and cut a cylindrical pore with a given radius at 0.0")
-  parser.add_argument("xyzfile", type=extant_file, help="path to a .xyz containing amorphous silica")
-  parser.add_argument("radius", type=float, help="radius of the pore")
-  parser.add_argument("-o", "--output", metavar="OUTFILE" , help="name of output file (default = pore.pdb)", default="pore.pdb")
-  parser.add_argument("--buffer-size", type=float, help="buffer added to radius to get the surface atoms (default = 1.0)", default=1.0)
-  parser.add_argument("--silanol-density", type=float, help="density of Si-O-H terminations at the pore surface in nm^(-2) (default = 3)", default=3)
-  parser.add_argument("--option", type=str, help="pore or plate",default="plate")
-
-  args = parser.parse_args()
-
-  obabel_sup = ["acr", "adf", "adfout", "alc", "arc", "bgf", "box", "bs", "c3d1", "c3d2", "cac", "caccrt", "cache", "cacint", "can", "car", "ccc", "cdx", "cdxml", "cht", "cif", "ck", "cml", "cmlr", "com", "copy", "crk2d", "crk3d", "csr", "cssr", "ct", "cub", "cube", "dmol", "dx", "ent", "fa", "fasta", "fch", "fchk", "fck", "feat", "fh", "fix", "fpt", "fract", "fs", "fsa", "g03", "g92", "g94", "g98", "gal", "gam", "gamin", "gamout", "gau", "gjc", "gjf", "gpr", "gr96", "gukin", "gukout", "gzmat", "hin", "inchi", "inp", "ins", "jin", "jout", "mcdl", "mcif", "mdl", "ml2", "mmcif", "mmd", "mmod", "mol", "mol2", "molden", "molreport", "moo", "mop", "mopcrt", "mopin", "mopout", "mpc", "mpd", "mpqc", "mpqcin", "msi", "msms", "nw", "nwo", "outmol", "pc", "pcm", "pdb", "png", "pov", "pqr", "pqs", "prep", "qcin", "qcout", "report", "res", "rsmi", "rxn", "sd", "sdf", "smi", "smiles", "sy2", "t41", "tdd", "test", "therm", "tmol", "txt", "txyz", "unixyz", "vmol", "xed", "xml", "xyz", "yob", "zin"]
-
-  # get basename and file extension
-  base, ext = os.path.splitext(args.xyzfile)
-
-  if ext[1:] not in obabel_sup:
-    sys.exit("Error: {} files are not accepted by OpenBabel.".format(ext[1:]))
-
-  if args.option=="pore":
-    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, args.output)
-  elif args.option=="plate":
-    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "2_"+args.output)
   else:
     sys.exit("Error! Neither @pore@ or @plate@ options has been selected.You need to choose one of them.")
