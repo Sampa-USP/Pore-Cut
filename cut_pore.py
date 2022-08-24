@@ -347,7 +347,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     if apos[1] < miny:
       miny = apos[1]
     
-    if (((apos[1]*apos[1])) <= (radius*radius)):
+    if (((apos[2]*apos[2])) <= (radius*radius)):
       todelete.append(atom)
 
 
@@ -641,7 +641,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
     if apos[1] < miny:
       miny = apos[1]
     
-    if (((apos[1]*apos[1])) <= (radius*radius)):
+    if (((apos[2]*apos[2])) <= (radius*radius)):
       todelete.append(atom)
 
 
@@ -895,15 +895,18 @@ if __name__ == '__main__':
   # get basename and file extension
   base, ext = os.path.splitext(args.xyzfile)
 
+  print(args)
+
+
   if ext[1:] not in obabel_sup:
     sys.exit("Error: {} files are not accepted by OpenBabel.".format(ext[1:]))
 
   if args.option=="poreh":
-    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "cylinder_oh_"+args.output)
+    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
   elif args.option=="plateh":
-    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "plate_oh_"+args.output)
+    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
   elif args.option=="plateo":
-    cut_plate_redirect_o2(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, "plate_o_"+args.output)
+    cut_plate_redirect_o2(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
 
   else:
     sys.exit("Error! Neither @pore@ or @plate@ options has been selected.You need to choose one of them.")
