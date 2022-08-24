@@ -886,7 +886,7 @@ if __name__ == '__main__':
   parser.add_argument("-o", "--output", metavar="OUTFILE" , help="name of output file (default = pore.pdb)", default="pore.pdb")
   parser.add_argument("--buffer-size", type=float, help="buffer added to radius to get the surface atoms (default = 1.0)", default=1.0)
   parser.add_argument("--silanol-density", type=float, help="density of Si-O-H terminations at the pore surface in nm^(-2) (default = 3)", default=100)
-  parser.add_argument("--option", type=str, help="options are : cylinder_oh_ | plate_oh_ | plate_o_",default="plate_o_")
+  parser.add_argument("--option", type=str, help="options are : cylinder_oh_ | plate_oh_ | plate_o_",default="plateo")
 
   args = parser.parse_args()
 
