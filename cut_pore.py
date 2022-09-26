@@ -354,8 +354,10 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   xlength = (maxx-minx)/10
   zlength = (maxz-minz)/10.
   ylength = (maxy-miny)/10.
-  porearea = 2*xlength*zlength
+
+  porearea = 2*xlength*ylength
   numoh = np.floor(porearea*ohdensity)
+
   print("Estimated z length (nm): {}".format(zlength))
   print("Estimated y length (nm): {}".format(ylength))
   print("Estimated x length (nm): {}".format(xlength))
@@ -371,7 +373,11 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   
   print("Estimated pore area (nm^2): {}".format(porearea))
   print("Number of needed OH: {}".format(numoh))
+
+
   numoh = numoh - (numoh%4)
+
+
   print("Will add {} hydrogen atoms".format(numoh))
   print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
 
@@ -501,6 +507,8 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   # for each Si we remove, we add 2 silanol
   # first remove the Si atoms coordinated with less than 4 atoms
   numsilicondelete = np.floor(numoh/4) + excsilicon
+
+
   print("Will delete {} silicon atoms".format(numsilicondelete))
   print("And add {} hydrogen atoms".format(numoh))
   ndelsi = 0
@@ -886,7 +894,7 @@ if __name__ == '__main__':
   parser.add_argument("-o", "--output", metavar="OUTFILE" , help="name of output file (default = pore.pdb)", default="pore.pdb")
   parser.add_argument("--buffer-size", type=float, help="buffer added to radius to get the surface atoms (default = 1.0)", default=1.0)
   parser.add_argument("--silanol-density", type=float, help="density of Si-O-H terminations at the pore surface in nm^(-2) (default = 3)", default=100)
-  parser.add_argument("--option", type=str, help="options are : cylinder_oh_ | plate_oh_ | plate_o_",default="plateo")
+  parser.add_argument("--option", type=str, help="options are : poreh, plateh ,plateo",default="plateo")
 
   args = parser.parse_args()
 
