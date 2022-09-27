@@ -347,7 +347,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     if apos[1] < miny:
       miny = apos[1]
     
-    if (((apos[2]*apos[2])) <= (radius*radius)):
+    if np.abs(apos[2]) <= (radius):
       todelete.append(atom)
 
 
@@ -395,7 +395,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   buffatoms = {8: 0, 14: 0}
   for atom in openbabel.OBMolAtomIter(mol):
     apos = (atom.GetX(), atom.GetY(), atom.GetZ())
-    distcenter = apos[1]*apos[1]
+    distcenter = apos[2]*apos[2]
     
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
@@ -564,11 +564,11 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
 
         # get the angle of atom (cylindrical coordinates)
         apos = (atom.GetX(), atom.GetY(), atom.GetZ())
-        angle = np.arctan2(apos[1], apos[0])
+        angle = np.abs(apos[2])/apos[2]
         # add atom 1 \AA away from the oxygen, pointing to the central axis
         a = mol.NewAtom()
         a.SetAtomicNum(1) # hydrogen atom
-        a.SetVector(apos[0]-np.cos(angle), apos[1]-np.sin(angle), apos[2]) # coordinates
+        a.SetVector(apos[0], apos[1], apos[2] - 1.5*angle) # coordinates
         naddedh += 1
 
     else:
@@ -691,7 +691,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
   buffatoms = {8: 0, 14: 0}
   for atom in openbabel.OBMolAtomIter(mol):
     apos = (atom.GetX(), atom.GetY(), atom.GetZ())
-    distcenter = apos[1]*apos[1]
+    distcenter = apos[2]*apos[2]
     
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
@@ -842,6 +842,9 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
   # also checks if the O is not connected to an Si that already has an O-H
   naddedh = 0
   silist = []
+
+  
+
   for (dist, atom) in ordbuffer.items():
     if naddedh >= numoh:
       #break
