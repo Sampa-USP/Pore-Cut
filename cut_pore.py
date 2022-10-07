@@ -913,11 +913,11 @@ if __name__ == '__main__':
     sys.exit("Error: {} files are not accepted by OpenBabel.".format(ext[1:]))
 
   if args.option=="poreh":
-    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density, str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
+    cut_pore(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,args.output)
   elif args.option=="plateh":
-    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
+    cut_plate(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,args.output)
   elif args.option=="plateo":
-    cut_plate_redirect_o2(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,str(args.radius) +"_" + str(args.silanol_density) + "_" +args.output)
+    cut_plate_redirect_o2(args.xyzfile, args.radius, args.buffer_size, args.silanol_density,args.output)
 
   else:
     sys.exit("Error! Neither @pore@ or @plate@ options has been selected.You need to choose one of them.")
