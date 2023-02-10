@@ -56,7 +56,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    #print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
   # for each atom, check if it is in the cylinder
   todelete = []
@@ -75,12 +75,12 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
   zlength = (maxz-minz)/10.
   porearea = 2.*np.pi*(radius/10.)*zlength
   numoh = np.floor(porearea*ohdensity)
-  print("Estimated z length (nm): {}".format(zlength))
-  print("Estimated pore area (nm^2): {}".format(porearea))
-  print("Number of needed OH: {}".format(numoh))
+  #print("Estimated z length (nm): {}".format(zlength))
+  #print("Estimated pore area (nm^2): {}".format(porearea))
+  #print("Number of needed OH: {}".format(numoh))
   numoh = numoh - (numoh%4)
-  print("Will add {} hydrogen atoms".format(numoh))
-  print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
+  #print("Will add {} hydrogen atoms".format(numoh))
+  #print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
 
   # delete atoms
   deleted = {8: 0, 14: 0}
@@ -88,7 +88,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
     deleted[atom.GetAtomicNum()] += 1
     mol.DeleteAtom(atom)
 
-  print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
+  #print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
 
   # add buffer to get the atoms at the surface
   rbuf = radius + buffer
@@ -101,9 +101,13 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
       buffatoms[atom.GetAtomicNum()] += 1
       inbuffer[distcenter] = atom
 
+
+  import pdb
+  pdb.set_trace()
+
   # create dictionary ordered by distance from pore center
   ordbuffer = OrderedDict(sorted(inbuffer.items()))
-  # print(ordbuffer.keys())
+  # #print(ordbuffer.keys())
 
   # delete first the O atoms with valence less than 1
   deleteddists = []
@@ -200,15 +204,15 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
     buffatoms[8] -= 1
     ordbuffer.pop(dist)
 
-  # print(ordbuffer.keys())
-  print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
-  print("Excess silicon atoms: {}".format(excsilicon))
+  # #print(ordbuffer.keys())
+  ###print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
+  ##print("Excess silicon atoms: {}".format(excsilicon))
 
   # for each Si we remove, we add 2 silanol
   # first remove the Si atoms coordinated with less than 4 atoms
   numsilicondelete = np.floor(numoh/4) + excsilicon
-  print("Will delete {} silicon atoms".format(numsilicondelete))
-  print("And add {} hydrogen atoms".format(numoh))
+  ##print("Will delete {} silicon atoms".format(numsilicondelete))
+  ##print("And add {} hydrogen atoms".format(numoh))
   ndelsi = 0
   deleteddists = []
   for (dist, atom) in ordbuffer.items():
@@ -272,7 +276,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
     else:
       continue
 
-  print("Number of added hydrogens: {}".format(naddedh))
+  ##print("Number of added hydrogens: {}".format(naddedh))
 
   # make a check of how many undercoordinate atoms there are in the output xyz
   if ext[1:].lower() == "pdb":
@@ -284,7 +288,7 @@ def cut_pore(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    ##print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
 
   # write final structure
@@ -317,7 +321,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    ##print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
   # for each atom, check if it is in the cylinder
   todelete = []
@@ -357,29 +361,15 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
 
   porearea = 2*xlength*ylength
   numoh = np.floor(porearea*ohdensity)
-
-  print("Estimated z length (nm): {}".format(zlength))
-  print("Estimated y length (nm): {}".format(ylength))
-  print("Estimated x length (nm): {}".format(xlength))
   
-  print("Min X (nm): {}".format(minx))
-  print("Max X (nm): {}".format(maxx))
-  
-  print("Mix Y (nm): {}".format(miny))
-  print("Max Y (nm): {}".format(maxy))
-  
-  print("Min Z (nm): {}".format(minz))
-  print("Max Z (nm): {}".format(maxz))
-  
-  print("Estimated pore area (nm^2): {}".format(porearea))
-  print("Number of needed OH: {}".format(numoh))
+  ##print("Estimated pore area (nm^2): {}".format(porearea))
+  ##print("Number of needed OH: {}".format(numoh))
 
 
   numoh = numoh - (numoh%4)
 
-
-  print("Will add {} hydrogen atoms".format(numoh))
-  print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
+  ##print("Will add {} hydrogen atoms".format(numoh))
+  ##print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
 
   # delete atoms
   deleted = {8: 0, 14: 0}
@@ -387,7 +377,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     deleted[atom.GetAtomicNum()] += 1
     mol.DeleteAtom(atom)
 
-  print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
+  ##print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
 
   # add buffer to get the atoms at the surface
   rbuf = radius + buffer
@@ -399,11 +389,15 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
+      if distcenter in list(inbuffer.keys()):
+        while distcenter in list(inbuffer.keys()):
+          distcenter+=1e-14
+      
       inbuffer[distcenter] = atom
 
   # create dictionary ordered by distance from pore center
   ordbuffer = OrderedDict(sorted(inbuffer.items()))
-  # print(ordbuffer.keys())
+  # #print(ordbuffer.keys())
 
   # delete first the O atoms with valence less than 1
   deleteddists = []
@@ -500,19 +494,22 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     buffatoms[8] -= 1
     ordbuffer.pop(dist)
 
-  # print(ordbuffer.keys())
-  print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
-  print("Excess silicon atoms: {}".format(excsilicon))
+
+  # #print(ordbuffer.keys())
+  ##print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
+  ##print("Excess silicon atoms: {}".format(excsilicon))
 
   # for each Si we remove, we add 2 silanol
   # first remove the Si atoms coordinated with less than 4 atoms
   numsilicondelete = np.floor(numoh/4) + excsilicon
 
 
-  print("Will delete {} silicon atoms".format(numsilicondelete))
-  print("And add {} hydrogen atoms".format(numoh))
+  ##print("Will delete {} silicon atoms".format(numsilicondelete))
+  ##print("And add {} hydrogen atoms".format(numoh))
+
   ndelsi = 0
   deleteddists = []
+
   for (dist, atom) in ordbuffer.items():
     if ndelsi >= numsilicondelete:
       break
@@ -548,6 +545,8 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   # also checks if the O is not connected to an Si that already has an O-H
   naddedh = 0
   silist = []
+
+
   for (dist, atom) in ordbuffer.items():
     if naddedh >= numoh:
       break
@@ -568,13 +567,13 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
         # add atom 1 \AA away from the oxygen, pointing to the central axis
         a = mol.NewAtom()
         a.SetAtomicNum(1) # hydrogen atom
-        a.SetVector(apos[0], apos[1], apos[2] - 1.5*angle) # coordinates
+        a.SetVector(apos[0], apos[1], apos[2] - 1*angle) # coordinates
         naddedh += 1
 
     else:
       continue
 
-  print("Number of added hydrogens: {}".format(naddedh))
+  #print("Number of added hydrogens: {}".format(naddedh))
 
   # make a check of how many undercoordinate atoms there are in the output xyz
   if ext[1:].lower() == "pdb":
@@ -586,9 +585,10 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    #print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
 
+  print(numoh == naddedh)
   # write final structure
   obConversion.WriteFile(mol, outfile)
 
@@ -619,7 +619,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    #print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
   # for each atom, check if it is in the cylinder
   todelete = []
@@ -658,24 +658,24 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
   ylength = (maxy-miny)/10.
   porearea = 2*xlength*zlength
   numoh = np.floor(porearea*ohdensity)
-  print("Estimated z length (nm): {}".format(zlength))
-  print("Estimated y length (nm): {}".format(ylength))
-  print("Estimated x length (nm): {}".format(xlength))
+  #print("Estimated z length (nm): {}".format(zlength))
+  #print("Estimated y length (nm): {}".format(ylength))
+  #print("Estimated x length (nm): {}".format(xlength))
   
-  print("Min X (nm): {}".format(minx))
-  print("Max X (nm): {}".format(maxx))
+  #print("Min X (nm): {}".format(minx))
+  #print("Max X (nm): {}".format(maxx))
   
-  print("Mix Y (nm): {}".format(miny))
-  print("Max Y (nm): {}".format(maxy))
+  #print("Mix Y (nm): {}".format(miny))
+  #print("Max Y (nm): {}".format(maxy))
   
-  print("Min Z (nm): {}".format(minz))
-  print("Max Z (nm): {}".format(maxz))
+  #print("Min Z (nm): {}".format(minz))
+  #print("Max Z (nm): {}".format(maxz))
   
-  print("Estimated pore area (nm^2): {}".format(porearea))
-  print("Number of needed OH: {}".format(numoh))
+  #print("Estimated pore area (nm^2): {}".format(porearea))
+  #print("Number of needed OH: {}".format(numoh))
   numoh = numoh - (numoh%4)
-  print("Will add {} hydrogen atoms".format(numoh))
-  print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
+  #print("Will add {} hydrogen atoms".format(numoh))
+  #print("Silanol density (nm^(-2)): {}".format(numoh/porearea))
 
   # delete atoms
   deleted = {8: 0, 14: 0}
@@ -683,7 +683,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
     deleted[atom.GetAtomicNum()] += 1
     mol.DeleteAtom(atom)
 
-  print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
+  #print("Deleted {} oxygen and {} silicon atoms.".format(deleted[8], deleted[14]))
 
   # add buffer to get the atoms at the surface
   rbuf = radius + buffer
@@ -699,7 +699,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
 
   # create dictionary ordered by distance from pore center
   ordbuffer = OrderedDict(sorted(inbuffer.items()))
-  # print(ordbuffer.keys())
+  # #print(ordbuffer.keys())
 
   # delete first the O atoms with valence less than 1
   deleteddists = []
@@ -796,15 +796,15 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
     buffatoms[8] -= 1
     ordbuffer.pop(dist)
 
-  # print(ordbuffer.keys())
-  print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
-  print("Excess silicon atoms: {}".format(excsilicon))
+  # #print(ordbuffer.keys())
+  #print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
+  #print("Excess silicon atoms: {}".format(excsilicon))
 
   # for each Si we remove, we add 2 silanol
   # first remove the Si atoms coordinated with less than 4 atoms
   numsilicondelete = np.floor(numoh/4) + excsilicon
-  print("Will delete {} silicon atoms".format(numsilicondelete))
-  print("And add {} hydrogen atoms".format(numoh))
+  #print("Will delete {} silicon atoms".format(numsilicondelete))
+  #print("And add {} hydrogen atoms".format(numoh))
   ndelsi = 0
   deleteddists = []
   for (dist, atom) in ordbuffer.items():
@@ -871,7 +871,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
     else:
       continue
 
-  print("Number of added hydrogens: {}".format(naddedh))
+  #print("Number of added hydrogens: {}".format(naddedh))
 
   # make a check of how many undercoordinate atoms there are in the output xyz
   if ext[1:].lower() == "pdb":
@@ -883,11 +883,13 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    #print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
 
   # write final structure
   obConversion.WriteFile(mol, outfile)
+
+
 
 
 if __name__ == '__main__':
@@ -906,7 +908,7 @@ if __name__ == '__main__':
   # get basename and file extension
   base, ext = os.path.splitext(args.xyzfile)
 
-  print(args)
+  #print(args)
 
 
   if ext[1:] not in obabel_sup:
