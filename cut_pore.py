@@ -383,15 +383,18 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   rbuf = radius + buffer
   inbuffer = {}
   buffatoms = {8: 0, 14: 0}
+  cache = {}
+  
   for atom in openbabel.OBMolAtomIter(mol):
     apos = (atom.GetX(), atom.GetY(), atom.GetZ())
     distcenter = apos[2]*apos[2]
-    
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
       if distcenter in list(inbuffer.keys()):
-        while distcenter in list(inbuffer.keys()):
-          distcenter+=1e-14
+        cache[distcenter] = cache.get(distcenter,0) + 1e-6
+        distcenter += cache[distcenter]
+        #while distcenter in list(inbuffer.keys()):
+        #  distcenter+=1e-14
       
       inbuffer[distcenter] = atom
 
@@ -545,6 +548,11 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   # also checks if the O is not connected to an Si that already has an O-H
   naddedh = 0
   silist = []
+  import random
+
+  l = list(ordbuffer.items())
+  random.shuffle(l)
+  ordbuffer = dict(l)
 
 
   for (dist, atom) in ordbuffer.items():
@@ -588,7 +596,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     #print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
 
-  print(numoh == naddedh)
+  print(numoh,naddedh)
   # write final structure
   obConversion.WriteFile(mol, outfile)
 

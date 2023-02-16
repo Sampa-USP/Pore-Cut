@@ -63,9 +63,9 @@ if __name__ == '__main__':
   
   
   mol.SetFlag(openbabel.OB_PERIODIC_MOL)
-  # if args.detect_ionized_o:
-    # mol.SetFlag(openbabel.OB_PERIODIC_MOL)
-  #mol.ConnectTheDots() # necessary because of the 'b' INOPTION
+  if args.detect_ionized_o:
+    mol.SetFlag(openbabel.OB_PERIODIC_MOL)
+  mol.ConnectTheDots() # necessary because of the 'b' INOPTION
 
   # for each bond, check if it is an hydrogen connected to an oxygen
   oxygensh = []
@@ -92,7 +92,7 @@ if __name__ == '__main__':
           for neigh in openbabel.OBAtomAtomIter(atom):
             ionsilicon.append(neigh.GetId()+1)
 
-  print("Found {} OH, {} OI and {} SiI atoms".format(len(oxygensh), len(ionoxygen), len(ionsilicon)))
+  #print("Found {} OH, {} OI and {} SiI atoms".format(len(oxygensh), len(ionoxygen), len(ionsilicon)))
 
   # now rename based on the list
   anum = 0

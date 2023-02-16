@@ -49,16 +49,16 @@ if __name__ == '__main__':
   obConversion.SetInAndOutFormats(ext[1:],"pdb")
   # trick to disable ring perception and make the ReadFile waaaay faster
   # Source: https://sourceforge.net/p/openbabel/mailman/openbabel-discuss/thread/56e1812d-396a-db7c-096d-d378a077853f%40ipcms.unistra.fr/#msg36225392
-  obConversion.AddOption("b", openbabel.OBConversion.INOPTIONS) 
+  obConversion.AddOption("s", openbabel.OBConversion.INOPTIONS) 
   obConversion.AddOption("c", openbabel.OBConversion.INOPTIONS) # ignore the CONECTs
 
   # read molecule to OBMol object
   mol = openbabel.OBMol()
   obConversion.ReadFile(mol, args.pdbfile)
-  #mol.SetFlag(openbabel.OB_PERIODIC_MOL)
+  mol.SetFlag(openbabel.OB_PERIODIC_MOL)
 
 
-  mol.ConnectTheDots() # necessary because of the 'b' INOPTION
+  #mol.ConnectTheDots() # necessary because of the 'b' INOPTION
 
   # for each bond, check if it is an hydrogen connected to an oxygen
   oxygensh = []
@@ -85,7 +85,36 @@ if __name__ == '__main__':
           for neigh in openbabel.OBAtomAtomIter(atom):
             ionsilicon.append(neigh.GetId()+1)
 
-  print("Found {} OH, {} OI and {} SiI atoms".format(len(oxygensh), len(ionoxygen), len(ionsilicon)))
+
+  sis = 0
+  os = 0
+  hs = 0
+
+  for atom in openbabel.OBMolAtomIter(mol):
+    if atom.GetAtomicNum()==8:
+      os+=1
+    elif atom.GetAtomicNum()==1:
+      hs+=1
+    elif atom.GetAtomicNum()==14:
+      sis+=1
+
+  #print(sis)
+  #print(os)
+  #print(hs)
+  
+  drop_h = hs - len(oxygensh)
+
+  for atom in openbabel.OBMolAtomIter(mol):
+    if drop_h == 0:
+      break
+    else:
+      if atom.GetAtomicNum==1:
+        drop_h-=1
+        mol.DeleteAtom(atom)
+      else:
+        continue
+
+  print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs, len(ionoxygen), len(ionsilicon)))
 
   # now rename based on the list
   anum = 0
