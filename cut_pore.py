@@ -302,7 +302,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   obConversion.SetInAndOutFormats(ext[1:], os.path.splitext(outfile)[1][1:])
   # trick to disable ring perception and make the ReadFile waaaay faster
   # Source: https://sourceforge.net/p/openbabel/mailman/openbabel-discuss/thread/56e1812d-396a-db7c-096d-d378a077853f%40ipcms.unistra.fr/#msg36225392
-  obConversion.AddOption("b", openbabel.OBConversion.INOPTIONS) 
+  obConversion.AddOption("s", openbabel.OBConversion.INOPTIONS) 
 
   # read molecule to OBMol object
   mol = openbabel.OBMol()
@@ -391,11 +391,9 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     if (distcenter <= (rbuf*rbuf)):
       buffatoms[atom.GetAtomicNum()] += 1
       if distcenter in list(inbuffer.keys()):
-        cache[distcenter] = cache.get(distcenter,0) + 1e-6
+        cache[distcenter] = cache.get(distcenter,0) + 1e-2
         distcenter += cache[distcenter]
-        #while distcenter in list(inbuffer.keys()):
-        #  distcenter+=1e-14
-      
+              
       inbuffer[distcenter] = atom
 
   # create dictionary ordered by distance from pore center
@@ -554,7 +552,6 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   random.shuffle(l)
   ordbuffer = dict(l)
 
-
   for (dist, atom) in ordbuffer.items():
     if naddedh >= numoh:
       break
@@ -584,20 +581,25 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   #print("Number of added hydrogens: {}".format(naddedh))
 
   # make a check of how many undercoordinate atoms there are in the output xyz
-  if ext[1:].lower() == "pdb":
+
+  if outfile.split(".")[-1] == "pdb":
     mol.ConnectTheDots() # necessary because of deleted atoms    
     uSi = 0
     uO = 0
+    cSi = 0
+    cO = 0
     for atom in openbabel.OBMolAtomIter(mol):
       if (atom.GetAtomicNum() == 14) and (atom.GetExplicitDegree() < 4):
         uSi += 1
+      elif (atom.GetAtomicNum() == 14) :
+        cSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
+      elif (atom.GetAtomicNum() == 8) : 
+        cO += 1
+
     #print("Final sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
-
-  print(numoh,naddedh)
-  # write final structure
   obConversion.WriteFile(mol, outfile)
 
 
@@ -627,7 +629,7 @@ def cut_plate_redirect_o2(infile, radius, buffer, ohdensity, outfile):
         uSi += 1
       elif (atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() < 2):
         uO += 1
-    #print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
+    print("Initial sample has {} under-coordinated Si and {} under-coordinated O.".format(uSi, uO))
 
   # for each atom, check if it is in the cylinder
   todelete = []

@@ -115,6 +115,14 @@ if __name__ == '__main__':
         continue
 
   print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs, len(ionoxygen), len(ionsilicon)))
+  print(f"Si {sis}")
+  print(f"O {os}")
+
+
+  charge = len(oxygensh) * -0.675 + 0.4 * (hs - drop_h) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
+  w_charge = len(oxygensh) * -0.675 + 0.4 * (hs) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
+
+  print(f"Final charge : {round(charge,4)}")
 
   # now rename based on the list
   anum = 0
