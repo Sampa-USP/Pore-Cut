@@ -1,0 +1,135 @@
+! Simulation of NTs inserting with restriction - 1st phase: NVT equilibration
+
+# Run_Name
+gcmc_run_5
+!------------------------------------------------------------------------------
+
+# Verbose_Log
+true
+!------------------------------------------------------------------------------
+
+# Sim_Type
+GCMC
+!------------------------------------------------------------------------------
+
+# Nbr_Species
+2
+!------------------------------------------------------------------------------
+
+# VDW_Style
+LJ cut 15.0
+!------------------------------------------------------------------------------
+
+# Charge_Style
+coul Ewald 15.0 1E-5
+!----------------------------------------"NONE" or "Coul Ewald cutoff accuracy"
+
+# Intra_Scaling
+0. 0. 0.0000 0
+0. 0. 0.0000 0
+0. 0. 0.0000 0
+0. 0. 0.0000 0
+!----------------------------------------------vdw, coul lines for each species
+
+# Mixing_Rule
+LB
+!----------------------------------------------------------------custom mix KBM
+
+# Seed_Info
+380192276675 20938019787
+!------------------------------------------------------------------------------
+
+# Pair_Energy
+true
+!------------------------------------------------------------------------------
+
+# Rcutoff_Low
+0.8
+!----------------------------------------------------------------------Angstrom
+
+# Molecule_Files
+pore_5_silanol_3.mcf 1
+waterSPCE.mcf 10000
+!----------------------------------------------------------one line per species
+
+# Box_Info
+1
+orthogonal
+50.70185607 50.77322 71.87085
+restricted_insertion slitpore 5
+!-------------------------------------------------------line 1: number of boxes
+!--------------------------------------------------------------line 2: box type
+!-------------------------------------------------line 3: box size in Angstroms
+!-------------------------------------------------line 4: restricted ins option
+
+# Temperature_Info
+300.0
+!------------------------------------------------------------------------Kelvin
+# Chemical_Potential_Info
+none -48.8
+!------------------------------------------------------------------------kJ/mol
+
+
+# Move_Probability_Info
+
+# Prob_Translation
+0.25
+0. 1.
+
+# Prob_Rotation
+0.25
+0. 180.
+
+# Prob_Insertion
+0.25
+none restricted
+
+# Prob_Deletion
+0.25
+
+# Done_Probability_Info
+!---------------------one line for each box and one entry/line for each species
+
+# Start_Type
+add_to_config 1 0 pore_5_silanol_3.xyz 0 2000
+!------------------------------------------------------------------------------
+
+#
+# Run_Type
+Production   10000
+!--------------------------Equilibration: update maximum widths every 1000 steps
+!---------------------------Production: report success ratio for each move type
+
+# Average_Info
+1
+!------------------------------------------------------------ 0 == yes, 1 == no
+
+# Simulation_Length_Info
+Units        steps
+Prop_Freq    5000
+Coord_Freq   5000
+Run          5000000
+! # Done_Simulation_Length_Info
+!-------------------------------------- output every 50 sweeps; run 10000 sweeps
+
+# Property_Info 1
+Energy_Total
+Pressure
+Volume
+Density
+nmols
+mass_density
+pressure_xx
+pressure_yy
+pressure_zz
+pressure
+!------------------------------------------------------------------------------
+# Fragment_Files
+spce.dat  1
+# CBMC_Info
+kappa_ins 16
+kappa_dih 12
+rcut_cbmc 10.0
+!------------------------------------------------------------------------------
+
+END
