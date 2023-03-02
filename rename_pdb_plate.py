@@ -63,6 +63,20 @@ if __name__ == '__main__':
 
   #mol.ConnectTheDots() # necessary because of the 'b' INOPTION
 
+  sis = 0
+  os = 0
+  hs = 0
+
+  for atom in openbabel.OBMolAtomIter(mol):
+    if atom.GetAtomicNum()==8:
+      os+=1
+    elif atom.GetAtomicNum()==1:
+      hs+=1
+    elif atom.GetAtomicNum()==14:
+      sis+=1
+  
+  drop_h = 0
+
   # for each bond, check if it is an hydrogen connected to an oxygen
   oxygensh = []
   for bond in openbabel.OBMolBondIter(mol):
@@ -87,32 +101,6 @@ if __name__ == '__main__':
           ionoxygen.append(atom.GetId()+1)
           for neigh in openbabel.OBAtomAtomIter(atom):
             ionsilicon.append(neigh.GetId()+1)
-
-
-  sis = 0
-  os = 0
-  hs = 0
-
-  for atom in openbabel.OBMolAtomIter(mol):
-    if atom.GetAtomicNum()==8:
-      os+=1
-    elif atom.GetAtomicNum()==1:
-      hs+=1
-    elif atom.GetAtomicNum()==14:
-      sis+=1
-  
-  drop_h = hs - len(oxygensh)
-
-  #print(drop_h)
-  for atom in openbabel.OBMolAtomIter(mol):
-    if drop_h == 0:
-      break
-    else:
-      if atom.GetAtomicNum==1:
-        drop_h-=1
-        mol.DeleteAtom(atom)
-      else:
-        continue
 
   #print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs - drop_h, len(ionoxygen), len(ionsilicon)))
   #print(f"Si {sis}")

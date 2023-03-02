@@ -573,7 +573,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
         # add atom 1 \AA away from the oxygen, pointing to the central axis
         a = mol.NewAtom()
         a.SetAtomicNum(1) # hydrogen atom
-        a.SetVector(apos[0], apos[1], apos[2] - 1*angle) # coordinates
+        a.SetVector(apos[0], apos[1], apos[2] - 0.85*angle) # coordinates
         naddedh += 1
 
     else:
@@ -586,11 +586,17 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   to_add_si = diff + 1*(f_part == 0.67)
   to_add_o = diff + 1*(f_part == 0.67) - 1*(f_part == 0.33)
   to_add_h = diff - 1*(f_part == 0.33)
-  
+
+
+
+  #print(diff, f_part)
+  #print(to_add_si,to_add_o,to_add_h)
+
+  print(numoh,naddedh,f_part)
   #print(f"numoh : {numoh}\nnaddedh : {naddedh}\ndiff : {diff}\n")
   if to_add_si!=0:
     for (dist, atom) in ordbuffer.items():
-      if ((atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() == 2)):
+      if ((atom.GetAtomicNum() == 8)):# and (atom.GetExplicitDegree() != 2)):
           
           apos = (atom.GetX(), atom.GetY(), atom.GetZ())
           angle = np.abs(apos[2])/apos[2]
