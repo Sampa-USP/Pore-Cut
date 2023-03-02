@@ -100,7 +100,8 @@ if __name__ == '__main__':
         if ((z*z) <= rbufsq):
           ionoxygen.append(atom.GetId()+1)
           for neigh in openbabel.OBAtomAtomIter(atom):
-            ionsilicon.append(neigh.GetId()+1)
+            if (atom.GetAtomicNum() == 14):
+              ionsilicon.append(neigh.GetId()+1)
 
   #print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs - drop_h, len(ionoxygen), len(ionsilicon)))
   #print(f"Si {sis}")
@@ -111,8 +112,7 @@ if __name__ == '__main__':
   w_charge = len(oxygensh) * -0.675 + 0.4 * (hs) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
 
   if np.abs(charge)<1e-3:
-    pass
-    #print(colored(f"Final charge : {round(charge,4)}", 'green'))
+    print(colored(f"Final charge : {round(charge,4)}", 'green'))
   else:
     print(colored(f"Final charge : {round(charge,8)}", 'red'))
 
