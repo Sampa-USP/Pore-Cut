@@ -303,13 +303,14 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
   # trick to disable ring perception and make the ReadFile waaaay faster
   # Source: https://sourceforge.net/p/openbabel/mailman/openbabel-discuss/thread/56e1812d-396a-db7c-096d-d378a077853f%40ipcms.unistra.fr/#msg36225392
   obConversion.AddOption("s", openbabel.OBConversion.INOPTIONS) 
+  obConversion.AddOption("c", openbabel.OBConversion.INOPTIONS) # ignore the CONECTs
 
   # read molecule to OBMol object
   mol = openbabel.OBMol()
   obConversion.ReadFile(mol, infile)
   if ext[1:].lower() == "pdb":
     mol.SetFlag(openbabel.OB_PERIODIC_MOL) # makes the system periodic
-  mol.ConnectTheDots() # necessary because of the 'b' INOPTION    
+  #mol.ConnectTheDots() # necessary because of the 'b' INOPTION    
   mol.Center()
 
   # make a check of how many undercoordinate atoms there are in the input xyz
@@ -497,7 +498,7 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
 
 
   # #print(ordbuffer.keys())
-  ##print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
+  #print("Deleted {} oxygen and {} silicon atoms after fix.".format(deleted[8], deleted[14]))
   ##print("Excess silicon atoms: {}".format(excsilicon))
 
   # for each Si we remove, we add 2 silanol
@@ -578,6 +579,38 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
     else:
       continue
 
+  diff = (numoh - naddedh) // 3
+  add_again = 0
+
+
+  #import pdb
+  #pdb.set_trace()
+
+  #print(f"numoh : {numoh}\nnaddedh : {naddedh}\ndiff : {diff}\n")
+
+  if diff!=0:
+    for (dist, atom) in ordbuffer.items():
+      if ((atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() == 2)):
+          apos = (atom.GetX(), atom.GetY(), atom.GetZ())
+          angle = np.abs(apos[2])/apos[2]
+
+          a = mol.NewAtom()
+          a.SetAtomicNum(14) # hydrogen atom
+          a.SetVector(apos[0], apos[1], apos[2] - 1.*angle) # coordinates
+
+          a = mol.NewAtom()
+          a.SetAtomicNum(8) # hydrogen atom
+          a.SetVector(apos[0], apos[1], apos[2] - (1. + 1.)*angle) # coordinates
+
+          a = mol.NewAtom()
+          a.SetAtomicNum(1) # hydrogen atom
+          a.SetVector(apos[0], apos[1], apos[2] - (1.+ 1. + 1)*angle) # coordinates
+
+          add_again +=1 
+      
+          if add_again==diff:
+            break
+  #print(f"add_again : {add_again}")
   #print("Number of added hydrogens: {}".format(naddedh))
 
   # make a check of how many undercoordinate atoms there are in the output xyz

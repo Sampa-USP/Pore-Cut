@@ -9,6 +9,8 @@ import os
 import argparse
 import sys
 import numpy as np
+from termcolor import colored
+
 try:
     import pybel
     import openbabel
@@ -54,8 +56,7 @@ if __name__ == '__main__':
 
   # read molecule to OBMol object
   mol = openbabel.OBMol()
-  obConversion.ReadFile(mol, args.pdbfile)
-  mol.SetFlag(openbabel.OB_PERIODIC_MOL)
+  mol.SetFlag(openbabel.OB_PERIODIC_MOL) # makes the system periodic
 
 
   #mol.ConnectTheDots() # necessary because of the 'b' INOPTION
@@ -104,6 +105,7 @@ if __name__ == '__main__':
   
   drop_h = hs - len(oxygensh)
 
+  #print(drop_h)
   for atom in openbabel.OBMolAtomIter(mol):
     if drop_h == 0:
       break
@@ -114,15 +116,20 @@ if __name__ == '__main__':
       else:
         continue
 
-  print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs, len(ionoxygen), len(ionsilicon)))
-  print(f"Si {sis}")
-  print(f"O {os}")
+  #print("Found {} OH, {} H, {} OI and {} SiI atoms".format(len(oxygensh),hs - drop_h, len(ionoxygen), len(ionsilicon)))
+  #print(f"Si {sis}")
+  #print(f"O {os}")
 
 
   charge = len(oxygensh) * -0.675 + 0.4 * (hs - drop_h) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
   w_charge = len(oxygensh) * -0.675 + 0.4 * (hs) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
 
-  print(f"Final charge : {round(charge,4)}")
+  if (charge*charge)==0:
+    pass
+    #print(colored(f"Final charge : {round(charge,4)}", 'green'))
+  else:
+    print(colored(f"Final charge : {round(charge,8)}", 'red'))
+
 
   # now rename based on the list
   anum = 0
