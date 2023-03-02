@@ -44,9 +44,10 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   rbufsq = (args.radius+args.buffer_radius)*(args.radius+args.buffer_radius)
-
    # set openbabel file format
   base, ext = os.path.splitext(args.pdbfile)
+
+
   obConversion = openbabel.OBConversion()
   obConversion.SetInAndOutFormats(ext[1:],"pdb")
   # trick to disable ring perception and make the ReadFile waaaay faster
@@ -56,6 +57,7 @@ if __name__ == '__main__':
 
   # read molecule to OBMol object
   mol = openbabel.OBMol()
+  obConversion.ReadFile(mol, args.pdbfile)
   mol.SetFlag(openbabel.OB_PERIODIC_MOL) # makes the system periodic
 
 
@@ -98,10 +100,6 @@ if __name__ == '__main__':
       hs+=1
     elif atom.GetAtomicNum()==14:
       sis+=1
-
-  #print(sis)
-  #print(os)
-  #print(hs)
   
   drop_h = hs - len(oxygensh)
 
@@ -124,7 +122,7 @@ if __name__ == '__main__':
   charge = len(oxygensh) * -0.675 + 0.4 * (hs - drop_h) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
   w_charge = len(oxygensh) * -0.675 + 0.4 * (hs) + -0.55 * (os - len(oxygensh)) + 1.1 * sis
 
-  if (charge*charge)==0:
+  if np.abs(charge)<1e-3:
     pass
     #print(colored(f"Final charge : {round(charge,4)}", 'green'))
   else:

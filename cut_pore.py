@@ -580,36 +580,44 @@ def cut_plate(infile, radius, buffer, ohdensity, outfile):
       continue
 
   diff = (numoh - naddedh) // 3
+  f_part = round(((numoh - naddedh) / 3 )- diff,2)
   add_again = 0
 
-
-  #import pdb
-  #pdb.set_trace()
-
+  to_add_si = diff + 1*(f_part == 0.67)
+  to_add_o = diff + 1*(f_part == 0.67) - 1*(f_part == 0.33)
+  to_add_h = diff - 1*(f_part == 0.33)
+  
   #print(f"numoh : {numoh}\nnaddedh : {naddedh}\ndiff : {diff}\n")
-
-  if diff!=0:
+  if to_add_si!=0:
     for (dist, atom) in ordbuffer.items():
       if ((atom.GetAtomicNum() == 8) and (atom.GetExplicitDegree() == 2)):
+          
           apos = (atom.GetX(), atom.GetY(), atom.GetZ())
           angle = np.abs(apos[2])/apos[2]
 
-          a = mol.NewAtom()
-          a.SetAtomicNum(14) # hydrogen atom
-          a.SetVector(apos[0], apos[1], apos[2] - 1.*angle) # coordinates
+          if to_add_si != 0:
+            a = mol.NewAtom()
+            a.SetAtomicNum(14) # hydrogen atom
+            a.SetVector(apos[0], apos[1], apos[2] - 1.*angle) # coordinates
+            to_add_si -= 1
 
-          a = mol.NewAtom()
-          a.SetAtomicNum(8) # hydrogen atom
-          a.SetVector(apos[0], apos[1], apos[2] - (1. + 1.)*angle) # coordinates
+          if to_add_o != 0:
+            a = mol.NewAtom()
+            a.SetAtomicNum(8) # hydrogen atom
+            a.SetVector(apos[0], apos[1], apos[2] - (1. + 1.)*angle) # coordinates
+            to_add_o -= 1
 
-          a = mol.NewAtom()
-          a.SetAtomicNum(1) # hydrogen atom
-          a.SetVector(apos[0], apos[1], apos[2] - (1.+ 1. + 1)*angle) # coordinates
+          if to_add_h != 0:
+            a = mol.NewAtom()
+            a.SetAtomicNum(1) # hydrogen atom
+            a.SetVector(apos[0], apos[1], apos[2] - (1.+ 1. + 1)*angle) # coordinates
+            to_add_h -= 1
 
           add_again +=1 
       
-          if add_again==diff:
+          if to_add_si == 0 :
             break
+
   #print(f"add_again : {add_again}")
   #print("Number of added hydrogens: {}".format(naddedh))
 
